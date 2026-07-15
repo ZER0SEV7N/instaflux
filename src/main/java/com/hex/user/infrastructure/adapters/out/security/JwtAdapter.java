@@ -8,6 +8,8 @@ import com.hex.user.domain.model.User;
 import com.hex.user.domain.ports.out.JwtPort;
 
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import java.util.Date;
 
@@ -40,6 +42,30 @@ public class JwtAdapter implements JwtPort {
                 .signWith(key)
                 .compact();
     }
+    
+    //Implementacion del getClaims que obtiene los claims del token JWT
+    public Claims getClaims(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
 
+    //Implementacion del metodo validateToken que valida el token JWT
+    public boolean validateToken(String token) {
+        try {
+            getClaims(token);
+            return true; // Si no lanza excepción, la firma es correcta y no ha expirado
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
 
+    //Implementacion del metodo getEmailFromToken que obtiene el email del token JWT
+    public String getEmailFromToken(String token) {
+        return getClaims(token).getSubject();
+    }
 }
+
