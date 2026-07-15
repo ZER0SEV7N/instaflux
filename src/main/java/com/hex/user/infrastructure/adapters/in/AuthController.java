@@ -2,7 +2,6 @@
 package com.hex.user.infrastructure.adapters.in;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.hex.global.infrastructure.web.ResponseGlobal;
 import com.hex.user.domain.ports.in.LoginUseCase;
