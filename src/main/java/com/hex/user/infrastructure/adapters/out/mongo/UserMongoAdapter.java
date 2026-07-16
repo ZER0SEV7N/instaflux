@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import com.hex.user.domain.model.User;
 import com.hex.user.domain.ports.out.UserRepositoryPort;
 import com.hex.user.infrastructure.adapters.out.mongo.entity.UserEntity;
-import com.hex.user.infrastructure.adapters.out.mongo.repository.SpringDataMongoUserRepository;
+import com.hex.user.infrastructure.adapters.out.mongo.repository.MongoUserRepository;
 
 import reactor.core.publisher.Mono;
 
@@ -19,9 +19,9 @@ import reactor.core.publisher.Mono;
 @Component
 public class UserMongoAdapter implements UserRepositoryPort {
     
-    private final SpringDataMongoUserRepository repository;
+    private final MongoUserRepository repository;
 
-    public UserMongoAdapter(SpringDataMongoUserRepository repository) {
+    public UserMongoAdapter(MongoUserRepository repository) {
         this.repository = repository;
     }
 
