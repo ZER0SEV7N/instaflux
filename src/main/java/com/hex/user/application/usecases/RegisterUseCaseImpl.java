@@ -33,7 +33,7 @@ public class RegisterUseCaseImpl implements RegisterUseCase {
             //Si el Mono esta vacio (no existe un usuario con ese correo), se procede a crear un nuevo usuario
             .switchIfEmpty(Mono.defer(() -> {
                 String hashedPassword = passwordEncoder.encode(password);
-                User newUser = new User(null, username, email, hashedPassword);
+                User newUser = new User(null, username, email, hashedPassword, null);
                 return userRepository.save(newUser);
             }));
 

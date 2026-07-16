@@ -1,5 +1,5 @@
 //infrastructure/adapters/in/AuthController.java
-package com.hex.user.infrastructure.adapters.in;
+package com.hex.user.infrastructure.adapters.in.web;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

@@ -14,7 +14,8 @@ public record UserEntity(
     @Id String id,
     String username,
     String email,
-    String password
+    String password,
+    String bio
 ) {
     
 }

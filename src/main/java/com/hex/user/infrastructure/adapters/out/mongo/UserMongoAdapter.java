@@ -43,14 +43,15 @@ public class UserMongoAdapter implements UserRepositoryPort {
         return repository.existsByUsername(username);
     }
 
+    //MAPPERS
     //Metodo para mapear de UserEntity a User
     private User toDomain(UserEntity entity) {
-        return new User(entity.id(), entity.username(), entity.email(), entity.password());
+        return new User(entity.id(), entity.username(), entity.email(), entity.password(), entity.bio());
     }
 
     //Metodo para mapear de User a UserEntity
     private UserEntity toEntity(User user) {
-        return new UserEntity(user.id(), user.username(), user.email(), user.password());
+        return new UserEntity(user.id(), user.username(), user.email(), user.password(), user.bio());
     }
     
 }

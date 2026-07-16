@@ -12,11 +12,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "posts")
 public record PostEntity(
     @Id String id,
-    String title,
+    String authorEmail,
     String content,
-    String authorId,
-    Instant createdAt,
-    Instant updatedAt
+    String imageUrl,
+    int likes,
+    Instant createdAt
 ) {
     
 }

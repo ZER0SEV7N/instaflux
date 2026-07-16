@@ -13,4 +13,6 @@ public interface MongoPostRepository extends ReactiveMongoRepository<PostEntity,
     
     //Consulta para obtener todo por el orden de fecha de creación descendente
     Flux<PostEntity> findAllByOrderByCreatedAtDesc();
+    //Consulta para obtener todos los posts de un autor específico por el orden de fecha de creación descendente
+    Flux<PostEntity> findByAuthorEmailOrderByCreatedAtDesc(String authorEmail);
 }

@@ -10,7 +10,10 @@ import reactor.core.publisher.Mono;
  */
 public interface PostRepositoryPort {
     //Ordernar los posts por fecha de creación en orden descendente y devolver una lista de posts
-    Flux<Post> findAllOrderByCreatedAtDesc(); 
+    Flux<Post> findAllOrderByCreatedAtDesc();
+
+    //Ordernar los posts por fecha de creación en orden descendente y devolver una lista de posts de un autor especifico
+    Flux<Post> findByAuthorEmailOrderByCreatedAtDesc(String authorEmail);
     
     Mono<Post> save(Post post); //Guardar un post en el repositorio y devolver el post guardado
 
