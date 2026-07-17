@@ -6,9 +6,11 @@ import org.springframework.context.annotation.Configuration;
 
 import com.hex.post.application.usecases.CreatePostUseCaseImpl;
 import com.hex.post.application.usecases.GetFeedUseCaseImpl;
+import com.hex.post.application.usecases.GetUserPostsUseCaseImpl;
 import com.hex.post.application.usecases.LikePostUseCaseImpl;
 import com.hex.post.domain.ports.in.CreatePostUseCase;
 import com.hex.post.domain.ports.in.GetFeedUseCase;
+import com.hex.post.domain.ports.in.GetUserPostsUseCase;
 import com.hex.post.domain.ports.in.LikePostUseCase;
 import com.hex.post.domain.ports.out.PostRepositoryPort;
 
@@ -35,5 +37,9 @@ public class PostUseCaseConfig {
         return new LikePostUseCaseImpl(postRepositoryPort);
     }
 
+    @Bean
+    public GetUserPostsUseCase getUserPostsUseCase(PostRepositoryPort postRepositoryPort) {
+        return new GetUserPostsUseCaseImpl(postRepositoryPort);
+    }
 
 }

@@ -2,12 +2,14 @@
 package com.hex.post.infrastructure.adapters.in.web;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +19,7 @@ import com.hex.post.domain.ports.in.CreatePostUseCase;
 import com.hex.post.domain.ports.in.GetFeedUseCase;
 import com.hex.post.domain.ports.in.GetUserPostsUseCase;
 import com.hex.post.domain.ports.in.LikePostUseCase;
-import com.hex.post.infrastructure.adapters.in.dto.CreatePostRequest;
+import com.hex.post.domain.ports.out.ImageStoragePort;
 import com.hex.post.infrastructure.adapters.in.dto.PostResponse;
 
 import reactor.core.publisher.Flux;
@@ -36,12 +38,14 @@ public class PostController {
     private final GetFeedUseCase getFeedUseCase;
     private final LikePostUseCase likePostUseCase;
     private final GetUserPostsUseCase getUserPostsUseCase;
+    private final ImageStoragePort imageStoragePort;
 
-    public PostController(CreatePostUseCase createPostUseCase, GetFeedUseCase getFeedUseCase, LikePostUseCase likePostUseCase, GetUserPostsUseCase getUserPostsUseCase) {
+    public PostController(CreatePostUseCase createPostUseCase, GetFeedUseCase getFeedUseCase, LikePostUseCase likePostUseCase, GetUserPostsUseCase getUserPostsUseCase, ImageStoragePort imageStoragePort) {
         this.createPostUseCase = createPostUseCase;
         this.getFeedUseCase = getFeedUseCase;
         this.likePostUseCase = likePostUseCase;
         this.getUserPostsUseCase = getUserPostsUseCase;
+        this.imageStoragePort = imageStoragePort;
     }
 
     /**
@@ -52,12 +56,19 @@ public class PostController {
      * @param request: {content: "Contenido del post", imageUrl: "URL de la imagen"}
      * @return: ResponseGlobal<PostResponse>: Respuesta global con el estado de la operación y los datos del post creado.
      */
-    @PostMapping()
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseGlobal<PostResponse>> createPost(@RequestBody CreatePostRequest request) {
+    public Mono<ResponseGlobal<PostResponse>> createPost(
+            @RequestPart("content") String content,
+            @RequestPart("file") FilePart file) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(context -> context.getAuthentication().getName()) //Obtener el email del usuario autenticado desde el contexto de seguridad reactivo
-                .flatMap(authorEmail -> createPostUseCase.createPost(authorEmail, request.content(), request.imageUrl()))
+                //Primero subimos la imagen al almacenamiento y obtenemos la URL de la imagen
+                .flatMap(authorEmail -> 
+                    imageStoragePort.uploadImage(file)
+                        //Cuando la imagen se guarde y nos devuelva la URL, creamos el post en Mongo
+                        .flatMap(imageUrl -> createPostUseCase.createPost(authorEmail, content, imageUrl))
+                )
                 .map(this::toResponse)
                 .map(response -> ResponseGlobal.success(HttpStatus.CREATED.value(), response, "Post creado exitosamente"));
     }
