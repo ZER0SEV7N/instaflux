@@ -11,10 +11,12 @@ import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hex.chat.application.usecases.ChatUseCaseImpl;
 import com.hex.chat.domain.ports.in.ChatUseCase;
 import com.hex.chat.domain.ports.out.ChatRepositoryPort;
 import com.hex.chat.infrastructure.adapters.in.websocket.ChatWebSocketHandler;
+import com.hex.user.infrastructure.adapters.out.security.JwtAdapter;
 
 /**
  * ChatConfig: Clase de configuración para la funcionalidad de chat.
@@ -25,22 +27,23 @@ public class ChatConfig {
 
     //Bean para el caso de uso de chat
     @Bean
-    public ChatUseCase chatUseCase(ChatRepositoryPort chatRepositoryPort) {
-        return new ChatUseCaseImpl(chatRepositoryPort);
+    public ChatUseCase chatUseCase(ChatRepositoryPort chatRepository) {
+        return new ChatUseCaseImpl(chatRepository);
     }
 
-    //Bean para el manejador de WebSocket de chat
+    // 2. Le decimos a Spring qué URL usar para conectarse al WebSocket
     @Bean
-    public HandlerMapping webSocketMapping(ChatWebSocketHandler chatWebSocketHandler){
+    public HandlerMapping webSocketMapping(ChatWebSocketHandler chatWebSocketHandler) {
         Map<String, WebSocketHandler> map = new HashMap<>();
         map.put("/ws/chat", chatWebSocketHandler);
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setUrlMap(map);
-        mapping.setOrder(-1); //Prioridad alta para que se maneje antes que otros mappings
+        mapping.setOrder(-1); // Prioridad alta para que intercepte la conexión WS antes que los controladores REST
         return mapping;
     }
 
+    // 3. Adaptador necesario para que Spring WebFlux soporte WebSockets
     @Bean
     public WebSocketHandlerAdapter handlerAdapter() {
         return new WebSocketHandlerAdapter();

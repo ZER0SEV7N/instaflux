@@ -1,9 +1,10 @@
 //chat/infrastructure/adapters/in/websocket/ChatWebSocketHandler.java
 package com.hex.chat.infrastructure.adapters.in.websocket;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketSession;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hex.chat.domain.ports.in.ChatUseCase;
 import com.hex.chat.infrastructure.adapters.in.dto.IncomingMessage;
@@ -16,16 +17,17 @@ import reactor.core.publisher.Mono;
  * ChatWebSocketHandler: Clase que maneja las conexiones WebSocket para la funcionalidad de chat en tiempo real.
  * Conecta a los clientes y permite la transmisión de mensajes de chat en vivo.
  */
+@Component
 public class ChatWebSocketHandler implements WebSocketHandler {
 
     private final ChatUseCase chatUseCase;
     private final JwtAdapter jwtAdapter;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
-    public ChatWebSocketHandler(ChatUseCase chatUseCase, JwtAdapter jwtAdapter, ObjectMapper objectMapper) {
+    // Eliminamos ObjectMapper de los parámetros del constructor
+    public ChatWebSocketHandler(ChatUseCase chatUseCase, JwtAdapter jwtAdapter) {
         this.chatUseCase = chatUseCase;
         this.jwtAdapter = jwtAdapter;
-        this.objectMapper = objectMapper;
     }
     
     /**
@@ -66,8 +68,8 @@ public class ChatWebSocketHandler implements WebSocketHandler {
                     try{
                         String jsonMsg = objectMapper.writeValueAsString(chatMessage);
                         return session.textMessage(jsonMsg);
-                    }catch(Exception e){
-                        return session.textMessage("{}");
+                    }catch(JsonProcessingException e){
+                        return session.textMessage("Error serializing message");
                     }
                 })
         );
