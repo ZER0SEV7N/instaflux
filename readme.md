@@ -123,3 +123,4 @@ Si estás conectado y alguien te envía un mensaje, el servidor hará un push au
 ```
 
 Construido con ❤️ usando Spring WebFlux y Arquitectura Hexagonal.
+Realizado por Daniel Singer ZER0SEV7N.

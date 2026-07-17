@@ -10,13 +10,10 @@ import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hex.chat.application.usecases.ChatUseCaseImpl;
 import com.hex.chat.domain.ports.in.ChatUseCase;
 import com.hex.chat.domain.ports.out.ChatRepositoryPort;
 import com.hex.chat.infrastructure.adapters.in.websocket.ChatWebSocketHandler;
-import com.hex.user.infrastructure.adapters.out.security.JwtAdapter;
 
 /**
  * ChatConfig: Clase de configuración para la funcionalidad de chat.
