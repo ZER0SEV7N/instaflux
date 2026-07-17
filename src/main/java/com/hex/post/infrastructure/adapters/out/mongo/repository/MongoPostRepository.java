@@ -1,6 +1,8 @@
 //post/infrastructure/adapters/out/mongo/repository/MongoPostRepository.java
 package com.hex.post.infrastructure.adapters.out.mongo.repository;
 
+import java.util.Collection;
+
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import com.hex.post.infrastructure.adapters.out.mongo.entity.PostEntity;
 import reactor.core.publisher.Flux;
@@ -15,4 +17,6 @@ public interface MongoPostRepository extends ReactiveMongoRepository<PostEntity,
     Flux<PostEntity> findAllByOrderByCreatedAtDesc();
     //Consulta para obtener todos los posts de un autor específico por el orden de fecha de creación descendente
     Flux<PostEntity> findByAuthorEmailOrderByCreatedAtDesc(String authorEmail);
+    //Consulta para obtener todos los posts de una lista de autores específicos por el orden de fecha de creación descendente
+    Flux<PostEntity> findByAuthorEmailInOrderByCreatedAtDesc(Collection<String> authorEmails);
 }

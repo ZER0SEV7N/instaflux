@@ -38,11 +38,13 @@ public class FollowController {
      * @return: Ahora sigues a {targetEmail} o un error si no se puede realizar la operación.
      */
     @PostMapping("/{targetEmail}/follow")
-    public Mono<ResponseGlobal<Void>> follow(@PathVariable String targetEmail) {
+    public Mono<ResponseGlobal<String>> follow(@PathVariable String targetEmail) {
         return ReactiveSecurityContextHolder.getContext()
             .map(context -> context.getAuthentication().getName()) // Email de quien hace la petición
             .flatMap(followerEmail -> followUserUseCase.follow(followerEmail, targetEmail))
-            .map(unused -> ResponseGlobal.success(null, "Ahora sigues a " + targetEmail));
+            // Al encadenarlo fuera del flatMap es más limpio. 
+            // Usamos <String> para evitar que WebFlux elimine el cuerpo de la respuesta
+            .thenReturn(ResponseGlobal.<String>success(null, "Ahora sigues a " + targetEmail));
     }
 
     /**
@@ -54,10 +56,10 @@ public class FollowController {
      * @return: Ya no sigues a {targetEmail} o un error si no se puede realizar la operación.
      */
     @DeleteMapping("/{targetEmail}/follow")
-    public Mono<ResponseGlobal<Void>> unfollow(@PathVariable String targetEmail) {
+    public Mono<ResponseGlobal<String>> unfollow(@PathVariable String targetEmail) {
         return ReactiveSecurityContextHolder.getContext()
-            .map(context -> context.getAuthentication().getName()) // Email de quien hace la petición
+            .map(context -> context.getAuthentication().getName()) 
             .flatMap(followerEmail -> followUserUseCase.unfollow(followerEmail, targetEmail))
-            .map(unused -> ResponseGlobal.success(null, "Ya no sigues a " + targetEmail));
+            .thenReturn(ResponseGlobal.<String>success(null, "Ya no sigues a " + targetEmail));
     }
 }

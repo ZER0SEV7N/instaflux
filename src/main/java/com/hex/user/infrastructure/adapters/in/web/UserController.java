@@ -45,7 +45,33 @@ public class UserController {
                 .map(ResponseGlobal::success);
     }
 
-    @PatchMapping("/me/bio")
+    /**
+     * Endpoint para obtener el perfil del usuario autenticado.
+     * GET: /api/users/me
+     * Obtiene el correo electrónico del usuario autenticado desde el contexto de seguridad y 
+     * llama al caso de uso UpdateProfileUseCase para obtener los datos del perfil.
+     * @param: Solamente tener JWT
+     * @return: Username, email y bio del usuario autenticado.
+     * @throws RuntimeException: Si no se puede obtener el perfil del usuario autenticado
+     */
+    @GetMapping("/profile/me")
+    public Mono<ResponseGlobal<UserProfileResponse>> getMyProfile() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(context -> context.getAuthentication().getName()) //Obtener el email del usuario autenticado desde el contexto de seguridad reactivo
+                .flatMap(email -> updateProfileUseCase.getUserByEmail(email))
+                .map(user -> new UserProfileResponse(user.username(), user.email(), user.bio()))
+                .map(response -> ResponseGlobal.success(200, response, "Mi perfil"));
+    }
+
+    /**
+     * Endpoint para actualizar la biografía del usuario autenticado.
+     * PATCH: /api/users/me/bio
+     * Obtiene el correo electrónico del usuario autenticado desde el contexto de seguridad y llama al caso de uso UpdateProfileUseCase para actualizar la biografía.
+     * @param request: NewBio: "Nueva biografía" Nueva biografía proporcionada en el cuerpo de la solicitud.
+     * @return: ResponseGlobal<UserProfileResponse>: Respuesta global con el estado de la operación y los datos actualizados del perfil del usuario.
+     * @throws RuntimeException: Si no se puede actualizar la biografía del usuario
+     */
+    @PatchMapping("/profile/me/bio")
     public Mono<ResponseGlobal<UserProfileResponse>> updateBio(@RequestBody UpdateBioRequest request) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(context -> context.getAuthentication().getName()) //Obtener el email del usuario autenticado desde el contexto de seguridad reactivo

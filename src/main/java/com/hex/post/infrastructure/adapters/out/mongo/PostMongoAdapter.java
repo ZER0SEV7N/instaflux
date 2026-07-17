@@ -1,6 +1,8 @@
 //src/main/java/com/hex/post/infrastructure/adapters/out/mongo/PostMongoAdapter.java
 package com.hex.post.infrastructure.adapters.out.mongo;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.hex.post.domain.ports.out.PostRepositoryPort;
@@ -34,6 +36,12 @@ public class PostMongoAdapter implements PostRepositoryPort {
     //Implementacion del metodo findByAuthorEmailOrderByCreatedAtDesc
     public Flux<Post> findByAuthorEmailOrderByCreatedAtDesc(String authorEmail) {
         return repository.findByAuthorEmailOrderByCreatedAtDesc(authorEmail)
+                .map(this::toDomain);
+    }
+
+    //Implementacion del metodo findByAuthorEmailInOrderByCreatedAtDesc
+    public Flux<Post> findByAuthorEmailInOrderByCreatedAtDesc(List<String> followingEmails) {
+        return repository.findByAuthorEmailInOrderByCreatedAtDesc(followingEmails)
                 .map(this::toDomain);
     }
     

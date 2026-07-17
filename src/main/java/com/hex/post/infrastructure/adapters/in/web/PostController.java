@@ -1,6 +1,8 @@
 //src/main/java/com/hex/post/infrastructure/adapters/in/web/PostController.java
 package com.hex.post.infrastructure.adapters.in.web;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
@@ -80,10 +82,14 @@ public class PostController {
      * @return ResponseGlobal<Flux<PostResponse>>: Respuesta global con el estado de la operación y los datos del feed de posts.
      */
     @GetMapping
-    public Mono<ResponseGlobal<Flux<PostResponse>>> getFeed() {
-        //Retornar un Flux con el responseGlobal
-        Flux<PostResponse> feed = getFeedUseCase.getFeed().map(this::toResponse);
-        return Mono.just(ResponseGlobal.success(HttpStatus.OK.value(), feed, "Feed Obtenido Exitosamente"));
+    public Mono<ResponseGlobal<List<PostResponse>>> getFeed() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(context -> context.getAuthentication().getName()) // Sacamos el email del token
+                .flatMap(userEmail -> getFeedUseCase.getFeed(userEmail)
+                        .map(this::toResponse)
+                        .collectList() // Agrupamos el flujo reactivo en una lista para el JSON
+                )
+                .map(posts -> ResponseGlobal.success(200, posts, "Feed personalizado obtenido exitosamente"));
     }
 
     /**
@@ -115,6 +121,8 @@ public class PostController {
         return Mono.just(ResponseGlobal.success(HttpStatus.OK.value(), userPosts, "Posts del usuario obtenidos exitosamente"));
     }
 
+    //Mapper
+    //Método privado para convertir un objeto Post a PostResponse
     private PostResponse toResponse(Post post) {
         return new PostResponse(post.id(), post.authorEmail(), post.content(), post.imageUrl(), post.likes(), post.createdAt());
     }

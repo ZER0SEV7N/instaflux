@@ -4,6 +4,7 @@ package com.hex.post.infrastructure.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.hex.follow.domain.ports.out.FollowRepositoryPort;
 import com.hex.post.application.usecases.CreatePostUseCaseImpl;
 import com.hex.post.application.usecases.GetFeedUseCaseImpl;
 import com.hex.post.application.usecases.GetUserPostsUseCaseImpl;
@@ -28,8 +29,8 @@ public class PostUseCaseConfig {
     }
 
     @Bean
-    public GetFeedUseCase getFeedUseCase(PostRepositoryPort postRepositoryPort) {
-        return new GetFeedUseCaseImpl(postRepositoryPort);
+    public GetFeedUseCase getFeedUseCase(PostRepositoryPort postRepository, FollowRepositoryPort followRepository) {
+        return new GetFeedUseCaseImpl(postRepository, followRepository);
     }
 
     @Bean
