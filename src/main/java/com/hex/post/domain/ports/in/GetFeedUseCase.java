@@ -11,4 +11,5 @@ import reactor.core.publisher.Flux;
 public interface GetFeedUseCase {
     Flux<Post> getFeed(String userEmail); //Obtener el feed de publicaciones para un usuario específico, 
     //basado en los usuarios que sigue y ordenado por fecha de creación en orden descendente
+    Flux<Post> getExploreFeed(); //Obtener el feed de exploración, que muestra todas las publicaciones ordenadas por fecha de creación en orden descendente
 }

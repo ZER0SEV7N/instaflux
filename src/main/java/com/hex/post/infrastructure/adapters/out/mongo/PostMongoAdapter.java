@@ -57,6 +57,11 @@ public class PostMongoAdapter implements PostRepositoryPort {
                 .map(this::toDomain);
     }
 
+    //Implementacion del metodo deleteById
+    public Mono<Void> deleteById(String id) {
+        return repository.deleteById(id);
+    }
+
     //Mappers
      private Post toDomain(PostEntity entity) {
         return new Post(entity.id(), entity.authorEmail(), entity.content(), entity.imageUrl(), entity.likes(), entity.createdAt());

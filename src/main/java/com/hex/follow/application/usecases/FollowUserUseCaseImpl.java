@@ -8,6 +8,7 @@ import com.hex.follow.domain.ports.in.FollowUserUseCase;
 import com.hex.follow.domain.ports.out.FollowRepositoryPort;
 import com.hex.user.domain.ports.out.UserRepositoryPort;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -49,5 +50,17 @@ public class FollowUserUseCaseImpl implements FollowUserUseCase {
     public Mono<Void> unfollow(String followerEmail, String targetEmail) {
         return followRepository.deleteByFollowerAndFollowing(followerEmail, targetEmail);
     }
-        
+
+    //Metodo para obtener la lista de seguidores de un usuario dado su email.
+    public Flux<String> getFollowers(String email) {
+        return followRepository.findByFollowingEmail(email)
+                .map(Follow::followerEmail); // Extraemos solo el correo de quien nos sigue
+    }
+
+    //Metodo para obtener la lista de usuarios que sigue un usuario dado su email.
+    public Flux<String> getFollowing(String email) {
+        return followRepository.findByFollowerEmail(email)
+                .map(Follow::followingEmail); // Extraemos solo el correo de quien sigue
+    }
+
 }

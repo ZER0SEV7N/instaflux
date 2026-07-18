@@ -12,4 +12,5 @@ import reactor.core.publisher.Mono;
 public interface ChatRepositoryPort {
     Mono<ChatMessage> save(ChatMessage chatMessage); //Guardar un mensaje de chat en el repositorio y devolver el mensaje guardado
     Flux<ChatMessage> findChatHistory(String user1, String user2); //Obtener el historial de chat entre dos usuarios y devolver una lista de mensajes de chat
+    Mono<ChatMessage> findById(String id); //Buscar un mensaje de chat por su id y devolver el mensaje encontrado
 }

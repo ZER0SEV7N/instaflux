@@ -48,4 +48,27 @@ public class ChatUseCaseImpl implements ChatUseCase{
         return chatRepository.findChatHistory(user1, user2);
     }
     
+    //Metodo para editar un mensaje de chat existente
+    public Mono<ChatMessage> editMessage(String messageId, String senderEmail, String newContent) {
+        return chatRepository.findById(messageId)
+            .flatMap(msg -> {
+                if(!msg.senderEmail().equals(senderEmail)) return Mono.error(new RuntimeException("No puedes editar este mensaje"));
+                ChatMessage updatedMsg = new ChatMessage(msg.id(), msg.senderEmail(), msg.receiverEmail(), newContent, msg.timestamp());
+                return chatRepository.save(updatedMsg)
+                        .doOnSuccess(chatSink::tryEmitNext);
+            });
+    }
+
+    //Metodo para eliminar un mensaje de chat existente
+    public Mono<Void> deleteMessage(String messageId, String senderEmail) {
+        return chatRepository.findById(messageId)
+            .flatMap(msg -> {
+                if(!msg.senderEmail().equals(senderEmail)) return Mono.error(new RuntimeException("No puedes eliminar este mensaje"));
+                ChatMessage deleted = new ChatMessage(msg.id(), msg.senderEmail(), msg.receiverEmail(), "🚫 Este mensaje fue eliminado", msg.timestamp());
+                return chatRepository.save(deleted)
+                    .doOnSuccess(chatSink::tryEmitNext) 
+                    .then();
+            });
+    }
+
 }

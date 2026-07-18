@@ -35,5 +35,11 @@ public class ChatMongoAdapter implements ChatRepositoryPort {
         return repository.findChatHistoryOrderByTimestampAsc(user1, user2)
             .map(e -> new ChatMessage(e.id(), e.senderEmail(), e.receiverEmail(), e.content(), e.timestamp()));
     }
-    
+
+    //Implementacion del metodo findById para buscar un mensaje de chat por su id
+    public Mono<ChatMessage> findById(String id) {
+        return repository.findById(id)
+            .map(e -> new ChatMessage(e.id(), e.senderEmail(), e.receiverEmail(), e.content(), e.timestamp()));
+    }
+
 }

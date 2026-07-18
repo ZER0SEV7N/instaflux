@@ -1,11 +1,11 @@
 # InstaFlux Backend 🚀
 
-InstaFlux es el backend de una red social (estilo Instagram) construida con principios de alto rendimiento, 
+InstaFlux es el backend de una red social (estilo Instagram) construida con principios de alto rendimiento,
 diseñada para ser completamente asíncrona, no bloqueante y altamente escalable.
 
 ## 🏗️ Arquitectura y Tecnologías
 
-El proyecto está construido utilizando Arquitectura Hexagonal (Ports and Adapters), lo que permite un alto nivel de 
+El proyecto está construido utilizando Arquitectura Hexagonal (Ports and Adapters), lo que permite un alto nivel de
 desacoplamiento entre la lógica de negocio (Dominio/Casos de uso) y los detalles técnicos (Bases de datos, Frameworks web).
 
 - Framework: Java 17+ y Spring Boot 3.
@@ -17,13 +17,13 @@ desacoplamiento entre la lógica de negocio (Dominio/Casos de uso) y los detalle
 
 ## 🛠️ Cómo ejecutar el proyecto localmente
 
-1. Requisitos Previos
+1 . Requisitos Previos
 
 - Tener Docker y Docker Compose instalados.
 - Tener Java 17 o superior.
 - (Opcional pero recomendado) Postman para probar los endpoints y WebSockets.
 
-2. Levantar la Base de Datos
+2 . Levantar la Base de Datos
 
 - Abre una terminal en la raíz del proyecto y ejecuta:
 
@@ -33,7 +33,7 @@ docker-compose up -d
 
 - Esto descargará y ejecutará MongoDB con las credenciales configuradas en el docker-compose.yml.
 
-3. Ejecutar la Aplicación
+3 . Ejecutar la Aplicación
 
 - Desde tu IDE (VS Code, IntelliJ) corre la clase principal InstafluxApplication.java, o usa la terminal:
 

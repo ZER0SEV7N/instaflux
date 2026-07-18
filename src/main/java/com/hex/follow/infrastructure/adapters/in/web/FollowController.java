@@ -1,8 +1,11 @@
 //follow/infrastructure/adapters/in/web/FollowController.java
 package com.hex.follow.infrastructure.adapters.in.web;
 
+import java.util.List;
+
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,5 +64,31 @@ public class FollowController {
             .map(context -> context.getAuthentication().getName()) 
             .flatMap(followerEmail -> followUserUseCase.unfollow(followerEmail, targetEmail))
             .thenReturn(ResponseGlobal.<String>success(null, "Ya no sigues a " + targetEmail));
+    }
+
+    /**
+     * Endpoint para obtener la lista de seguidores de un usuario dado su correo electrónico.
+     * GET /api/users/{email}/followers
+     * @param email: Correo electrónico del usuario del cual se desea obtener la lista de seguidores.
+     * @return: Lista de correos electrónicos de los seguidores del usuario especificado.
+     */
+    @GetMapping("/{email}/followers")
+    public Mono<ResponseGlobal<List<String>>> getFollowers(@PathVariable String email) {
+        return followUserUseCase.getFollowers(email)
+                .collectList()
+                .map(followers -> ResponseGlobal.success(followers, "Lista de seguidores obtenida exitosamente"));
+    }
+
+    /**
+     * Endpoint para obtener la lista de usuarios que sigue un usuario dado su correo electrónico.
+     * GET /api/users/{email}/following
+     * @param email: Correo electrónico del usuario del cual se desea obtener la lista de usuarios seguidos.
+     * @return: Lista de correos electrónicos de los usuarios que el usuario especificado sigue.
+     */
+    @GetMapping("/{email}/following")
+    public Mono<ResponseGlobal<List<String>>> getFollowing(@PathVariable String email) {
+        return followUserUseCase.getFollowing(email)
+                .collectList()
+                .map(following -> ResponseGlobal.success(following, "Lista de usuarios seguidos obtenida exitosamente"));
     }
 }

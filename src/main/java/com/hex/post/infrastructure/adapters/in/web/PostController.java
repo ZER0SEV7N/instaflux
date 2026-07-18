@@ -2,14 +2,18 @@
 package com.hex.post.infrastructure.adapters.in.web;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -21,6 +25,7 @@ import com.hex.post.domain.ports.in.CreatePostUseCase;
 import com.hex.post.domain.ports.in.GetFeedUseCase;
 import com.hex.post.domain.ports.in.GetUserPostsUseCase;
 import com.hex.post.domain.ports.in.LikePostUseCase;
+import com.hex.post.domain.ports.in.ManagePostUseCase;
 import com.hex.post.domain.ports.out.ImageStoragePort;
 import com.hex.post.infrastructure.adapters.in.dto.PostResponse;
 
@@ -41,13 +46,15 @@ public class PostController {
     private final LikePostUseCase likePostUseCase;
     private final GetUserPostsUseCase getUserPostsUseCase;
     private final ImageStoragePort imageStoragePort;
+    private final ManagePostUseCase managePostUseCase;
 
-    public PostController(CreatePostUseCase createPostUseCase, GetFeedUseCase getFeedUseCase, LikePostUseCase likePostUseCase, GetUserPostsUseCase getUserPostsUseCase, ImageStoragePort imageStoragePort) {
+    public PostController(CreatePostUseCase createPostUseCase, GetFeedUseCase getFeedUseCase, LikePostUseCase likePostUseCase, GetUserPostsUseCase getUserPostsUseCase, ImageStoragePort imageStoragePort, ManagePostUseCase managePostUseCase) {
         this.createPostUseCase = createPostUseCase;
         this.getFeedUseCase = getFeedUseCase;
         this.likePostUseCase = likePostUseCase;
         this.getUserPostsUseCase = getUserPostsUseCase;
         this.imageStoragePort = imageStoragePort;
+        this.managePostUseCase = managePostUseCase;
     }
 
     /**
@@ -119,6 +126,56 @@ public class PostController {
     public Mono<ResponseGlobal<Flux<PostResponse>>> getUserPosts(@PathVariable String authorEmail) {
         Flux<PostResponse> userPosts = getUserPostsUseCase.getUserPosts(authorEmail).map(this::toResponse);
         return Mono.just(ResponseGlobal.success(HttpStatus.OK.value(), userPosts, "Posts del usuario obtenidos exitosamente"));
+    }
+
+    /**
+     * Endpoint para obtener el feed de exploración.
+     * Este método llama al caso de uso para obtener los posts recomendados para el usuario.
+     * GET: /api/posts/explore
+     * @return ResponseGlobal<List<PostResponse>>: Respuesta global con el estado de la operación y los datos de los posts recomendados.
+     */
+    @GetMapping("/explore")
+    public Mono<ResponseGlobal<List<PostResponse>>> getExploreFeed() {
+        return getFeedUseCase.getExploreFeed()
+                .map(this::toResponse)
+                .collectList()
+                .map(posts -> ResponseGlobal.success(200, posts, "Feed global obtenido"));
+    }
+
+    /**
+     * Endpoint para editar un post existente.
+     * Este método recibe el ID del post, el correo electrónico del autor y los nuevos datos del post.
+     * POST: /api/posts/{postId}
+     * @param postId: ID del post a editar.
+     * @param Body: Datos del post a editar: {content: "Nuevo contenido", imageUrl: "Nueva URL de la imagen"}
+     * @return: Respuesta con el estado de la operación y los datos del post actualizado.
+     * @throws RuntimeException: Si el post no existe o si el usuario que intenta editar
+     */
+    @PatchMapping("/{postId}")
+    public Mono<ResponseGlobal<PostResponse>> editPost(
+        @PathVariable String postId,
+        @RequestBody Map<String, String> Body) {
+            return ReactiveSecurityContextHolder.getContext()
+                    .map(ctx -> ctx.getAuthentication().getName())
+                    .flatMap(email -> managePostUseCase.editPost(postId, email, Body.get("content"), Body.get("imageUrl")))
+                    .map(this::toResponse)
+                    .map(response -> ResponseGlobal.success(HttpStatus.OK.value(), response, "Post actualizado exitosamente"));
+    }
+
+    /**
+     * Endpoint para eliminar un post existente.
+     * Este método recibe el ID del post y el correo electrónico del autor.
+     * DELETE: /api/posts/{id}
+     * @param id: ID del post a eliminar.
+     * @return: Respuesta con el estado de la operación.
+     * @throws RuntimeException: Si el post no existe o si el usuario que intenta eliminar
+     */
+    @DeleteMapping("/{id}")
+    public Mono<ResponseGlobal<Void>> deletePost(@PathVariable String id) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication().getName())
+                .flatMap(email -> managePostUseCase.deletePost(id, email))
+                .thenReturn(ResponseGlobal.success(HttpStatus.OK.value(), null, "Post eliminado exitosamente"));
     }
 
     //Mapper

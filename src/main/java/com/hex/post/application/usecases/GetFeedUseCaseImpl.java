@@ -13,11 +13,11 @@ import reactor.core.publisher.Flux;
  */
 public class GetFeedUseCaseImpl implements GetFeedUseCase {
 
-    private final PostRepositoryPort postRepositoryPort;
+    private final PostRepositoryPort postRepository;
     private final FollowRepositoryPort followRepository;
 
-    public GetFeedUseCaseImpl (PostRepositoryPort postRepositoryPort, FollowRepositoryPort followRepository) {
-        this.postRepositoryPort = postRepositoryPort;
+    public GetFeedUseCaseImpl (PostRepositoryPort postRepository, FollowRepositoryPort followRepository) {
+        this.postRepository = postRepository;
         this.followRepository = followRepository;
     }
     
@@ -32,7 +32,13 @@ public class GetFeedUseCaseImpl implements GetFeedUseCase {
                 //Buscar los posts de los usuarios que sigue y del usuario mismo, ordenados por fecha de creación descendente
                 .flatMapMany(followingEmails -> {
                     followingEmails.add(userEmail); 
-                    return postRepositoryPort.findByAuthorEmailInOrderByCreatedAtDesc(followingEmails);
+                    return postRepository.findByAuthorEmailInOrderByCreatedAtDesc(followingEmails);
                 });
+    }
+
+    
+    public Flux<Post> getExploreFeed() {
+        // Retorna todos los posts de la base de datos, perfecto para una pestaña "Explorar"
+        return postRepository.findAllOrderByCreatedAtDesc();
     }
 }

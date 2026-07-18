@@ -18,4 +18,8 @@ public interface ChatUseCase {
     Flux<ChatMessage> getChatHistory(String user1Email, String user2Email);
     //Metodo para escuchar los mensajes en vivo
     Flux<ChatMessage> listenToMyMessages(String userEmail);
+    //Metodo para editar un mensaje de chat existente
+    Mono<ChatMessage> editMessage(String messageId, String senderEmail, String newContent);
+    //Metodo para eliminar un mensaje de chat existente
+    Mono<Void> deleteMessage(String messageId, String senderEmail);
 }

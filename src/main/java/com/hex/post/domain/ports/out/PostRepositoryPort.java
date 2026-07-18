@@ -23,4 +23,6 @@ public interface PostRepositoryPort {
     Mono<Post> save(Post post); //Guardar un post en el repositorio y devolver el post guardado
 
     Mono<Post> findById(String id); //Buscar un post por su id y devolver el post encontrado
+
+    Mono<Void> deleteById(String id); //Eliminar un post por su id
 }
